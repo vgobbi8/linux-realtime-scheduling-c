@@ -16,4 +16,5 @@ wait
 echo "DM Simulation Finished."
 
 # SAVE THE RESULT
-./dump
+OUTPUT_FILE=${1:-result_dm.bmp}
+./dump "$OUTPUT_FILE"

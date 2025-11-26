@@ -12,7 +12,13 @@ struct shared_memory {
     unsigned char data[BYTES_TOTAL];
 };
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <output_filename>\n", argv[0]);
+        return 1;
+    }
+    char* resultFileName = argv[1];
+
     int fd = shm_open(SHM_NAME, O_RDONLY, 0666);
     if (fd == -1) { perror("shm_open"); return 1; }
 
@@ -29,7 +35,7 @@ int main() {
     fclose(header_src);
 
     // 2. Write Output
-    FILE *fp = fopen("resultado_final.bmp", "wb");
+    FILE *fp = fopen(resultFileName, "wb");
     
     // A. Write Header
     fwrite(header, 1, 54, fp);
@@ -38,6 +44,6 @@ int main() {
     
     fclose(fp);
 
-    printf("Success! Saved 'resultado_final.bmp'.\n");
+    printf("Success! Saved '%s'.\n", resultFileName);
     return 0;
 }

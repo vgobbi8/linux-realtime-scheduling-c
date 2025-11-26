@@ -19,4 +19,5 @@ wait
 echo "RM Simulation Finished."
 
 # SAVE THE RESULT
-./dump
+OUTPUT_FILE=${1:-result_rm.bmp}
+./dump "$OUTPUT_FILE"
