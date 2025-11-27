@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     int id = atoi(argv[1]);
     int burst_pixels = atoi(argv[2]);
 
-    // 1. Pre-load the BMP file (Avoid disk I/O in the RT loop)
+    // load BMP file
     char filename[32];
     sprintf(filename, "imagem%d.bmp", id);
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     
     printf("Task %d: Loaded %s into memory.\n", id, filename);
 
-    // 2. Connect to Shared Memory
+    //Connect to Shared Memory
     int fd = shm_open(SHM_NAME, O_RDWR, 0666);
     if (fd == -1) { perror("shm_open"); return 1; }
     
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     sem_t *sem = sem_open(SEM_NAME, 0);
 
-    // 3. Real-Time Processing Loop
+    // Real-Time Processing Loop
     while (1) {
         sem_wait(sem); 
         
@@ -71,19 +71,12 @@ int main(int argc, char *argv[]) {
         long end_pixel = start_pixel + burst_pixels;
         if (end_pixel > PIXELS_TOTAL) end_pixel = PIXELS_TOTAL;
         
-        // Copy RGB Data (3 bytes per pixel)
-        // Offset in bytes = pixel_index * 3
         long byte_offset = start_pixel * 3;
         long byte_count = (end_pixel - start_pixel) * 3;
 
         memcpy(&shm->data[byte_offset], &local_buffer[byte_offset], byte_count);
 
         shm->pixel_index = end_pixel;
-
-        // Progress indicator for the fastest task (optional)
-        if (id == 5 && start_pixel % 10000 == 0) {
-           // printf("Task 5 processed chunk at %ld\n", start_pixel);
-        }
 
         sem_post(sem);
         sched_yield();
